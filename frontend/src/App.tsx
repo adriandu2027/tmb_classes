@@ -63,7 +63,9 @@ const App: React.FC = () => {
   // Fetch data from the backend when the selected option changes
   useEffect(() => {
     if (selectedOption) {
-      fetch(`/open_now?building=${selectedOption.value}`)
+      // encodeURIComponent to ensure proper handling of special characters like "&"
+      const encodedBuilding = encodeURIComponent(selectedOption.value);
+      fetch(`/open_now?building=${encodedBuilding}`)
         .then((response) => response.json())
         .then((data) => {
           const roomCards = Object.entries(data).map(([room, next_time]) => ({
