@@ -1,116 +1,38 @@
-import React, { useState, useEffect } from "react";
-import Select from "react-select";
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import EmptyRoomSearcherPage from "./pages/EmptyRoomSearcherPage/EmptyRoomSearcher";
 import "./App.css";
 
-interface RoomCard {
-  room_number: string;
-  next_use_time: string;
-}
-
-const customStyles = {
-  control: (provided: any) => ({
-    ...provided,
-    margin: "10px 0",
-    width: "600px", // Fixed width for the dropdown
-  }),
-  option: (provided: any, state: any) => ({
-    ...provided,
-    color: "black",
-    backgroundColor: state.isSelected ? "#007bff" : "white",
-    ":hover": {
-      backgroundColor: state.isSelected ? "#007bff" : "#f2f2f2",
-    },
-  }),
-  singleValue: (provided: any) => ({
-    ...provided,
-    color: "black",
-  }),
-  menu: (provided: any) => ({
-    ...provided,
-    zIndex: 9999,
-    width: "600px", // Fixed width for the dropdown options
-  }),
-};
-
-const App: React.FC = () => {
-  const [input, setInput] = useState<string>("");
-  const [cards, setCards] = useState<RoomCard[]>([]);
-  const [selectedOption, setSelectedOption] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
-  const [options, setOptions] = useState<{ value: string; label: string }[]>(
-    []
-  );
-
-  useEffect(() => {
-    // fetchthe building names from the backend
-    fetch("/building_names") // fetch call reutrsn a promise of a response object
-      .then((response) => response.json()) // .then() receives the response object (using the function that we passed in)
-      .then((data) => {
-        // .then() chained to handle the resolved value that we got from response.json()
-        const buildingOptions = data.map((name: string) => ({
-          value: name,
-          label: name,
-        })); // apply function to each entry in data array to optain buildingOptions array
-        setOptions(buildingOptions);
-      })
-      .catch((error) =>
-        console.error("Error fetching building names: ", error)
-      );
-  }, []); // no dependencies
-
-  // Fetch data from the backend when the selected option changes
-  useEffect(() => {
-    if (selectedOption) {
-      // encodeURIComponent to ensure proper handling of special characters like "&"
-      const encodedBuilding = encodeURIComponent(selectedOption.value);
-      fetch(`/open_now?building=${encodedBuilding}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const roomCards = Object.entries(data).map(([room, next_time]) => ({
-            room_number: room,
-            next_use_time: next_time as string,
-          }));
-          setCards(roomCards);
-        })
-        .catch((error) => console.error("Error fetching data:", error));
-    }
-  }, [selectedOption]); // triggered when the state: selectedOption changes
-
-  const handleSelectChange = (
-    selectedOption: { value: string; label: string } | null
-  ) => {
-    setSelectedOption(selectedOption);
-  };
-
+const MainPage: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Empty Room Searcher</h1>
-        <div className="select-container">
-          <Select
-            value={selectedOption}
-            onChange={handleSelectChange}
-            options={options}
-            styles={customStyles}
-            placeholder="Select an option"
-          />
-        </div>
-        <div className="card-container">
-          {cards.map((card) => (
-            <div key={card.room_number} className="card">
-              <h1>Room {card.room_number}</h1>
-              <h2>
-                {card.next_use_time === "23:59"
-                  ? "Open for the rest of the day"
-                  : `Next class at: ${card.next_use_time}`}
-              </h2>
-            </div>
-          ))}
+        <h1>Welcome to the App</h1>
+        <div className="button-container">
+          <Link to="/empty-room-searcher">
+            <button>Go to Empty Room Searcher</button>
+          </Link>
+          <Link to="/other-page">
+            <button>Go to Other Page</button>
+          </Link>
         </div>
       </header>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route
+          path="/empty-room-searcher"
+          element={<EmptyRoomSearcherPage />}
+        />
+        {/* Add other routes here */}
+      </Routes>
+    </Router>
   );
 };
 
