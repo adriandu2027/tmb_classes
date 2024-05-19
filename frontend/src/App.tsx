@@ -2,23 +2,10 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import "./App.css";
 
-interface Card {
-  id: number;
-  title: string;
-  content: string;
+interface RoomCard {
+  room_number: string;
+  next_use_time: string;
 }
-
-const generateDummyData = (num: number): Card[] => {
-  const cards: Card[] = [];
-  for (let i = 1; i <= num; i++) {
-    cards.push({
-      id: i,
-      title: `Card ${i}`,
-      content: `This is the content of card ${i}.`,
-    });
-  }
-  return cards;
-};
 
 const customStyles = {
   control: (provided: any) => ({
@@ -47,7 +34,7 @@ const customStyles = {
 
 const App: React.FC = () => {
   const [input, setInput] = useState<string>("");
-  const [cards, setCards] = useState<Card[]>([]);
+  const [cards, setCards] = useState<RoomCard[]>([]);
   const [selectedOption, setSelectedOption] = useState<{
     value: string;
     label: string;
@@ -73,9 +60,21 @@ const App: React.FC = () => {
       );
   }, []); // no dependencies
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
+  // Fetch data from the backend when the selected option changes
+  useEffect(() => {
+    if (selectedOption) {
+      fetch(`/open_now?building=${selectedOption.value}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const roomCards = Object.entries(data).map(([room, next_time]) => ({
+            room_number: room,
+            next_use_time: next_time as string,
+          }));
+          setCards(roomCards);
+        })
+        .catch((error) => console.error("Error fetching data:", error));
+    }
+  }, [selectedOption]); // triggered when the state: selectedOption changes
 
   const handleSelectChange = (
     selectedOption: { value: string; label: string } | null
@@ -83,28 +82,10 @@ const App: React.FC = () => {
     setSelectedOption(selectedOption);
   };
 
-  const generateCards = () => {
-    const num = parseInt(input);
-    if (!isNaN(num) && num > 0) {
-      setCards(generateDummyData(num));
-    } else {
-      alert("Please enter a valid number greater than 0.");
-    }
-  };
-
   return (
     <div className="App">
       <header className="App-header">
         <h1>Empty Room Searcher</h1>
-        <div className="input-container">
-          <input
-            type="text"
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Enter a number"
-          />
-          <button onClick={generateCards}>Find Empty Rooms</button>
-        </div>
         <div className="select-container">
           <Select
             value={selectedOption}
@@ -116,9 +97,13 @@ const App: React.FC = () => {
         </div>
         <div className="card-container">
           {cards.map((card) => (
-            <div key={card.id} className="card">
-              <h2>{card.title}</h2>
-              <p>{card.content}</p>
+            <div key={card.room_number} className="card">
+              <h1>Room {card.room_number}</h1>
+              <h2>
+                {card.next_use_time === "23:59"
+                  ? "Open for the rest of the day"
+                  : `Next class at: ${card.next_use_time}`}
+              </h2>
             </div>
           ))}
         </div>

@@ -53,14 +53,14 @@
     max-width: 800px;
     text-align: left;
   }
-  
-  .card h2 {
-    font-size: 16px;
+
+  .card h1 {
+    font-size: 20px;
     margin: 3px 0;
   }
   
-  .card p {
-    font-size: 12px;
+  .card h2 {
+    font-size: 16px;
     margin: 3px 0;
   }
   
