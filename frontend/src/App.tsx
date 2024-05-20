@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import EmptyRoomSearcherPage from "./pages/EmptyRoomSearcherPage/EmptyRoomSearcher";
+import ClassFinderPage from "./pages/ClassFinderPage/ClassFinder";
 import "./App.css";
 
 const MainPage: React.FC = () => {
@@ -10,10 +11,10 @@ const MainPage: React.FC = () => {
         <h1>Welcome to the App</h1>
         <div className="button-container">
           <Link to="/empty-room-searcher">
-            <button>Go to Empty Room Searcher</button>
+            <button>Find Empty Rooms</button>
           </Link>
-          <Link to="/other-page">
-            <button>Go to Other Page</button>
+          <Link to="/class-finder">
+            <button>Find Classes</button>
           </Link>
         </div>
       </header>
@@ -30,7 +31,7 @@ const App: React.FC = () => {
           path="/empty-room-searcher"
           element={<EmptyRoomSearcherPage />}
         />
-        {/* Add other routes here */}
+        <Route path="/class-finder" element={<ClassFinderPage />} />
       </Routes>
     </Router>
   );

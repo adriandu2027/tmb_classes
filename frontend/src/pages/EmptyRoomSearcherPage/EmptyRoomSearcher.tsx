@@ -66,6 +66,7 @@ const EmptyRoomSearcher: React.FC = () => {
       fetch(`/open_now?building=${encodedBuilding}`)
         .then((response) => response.json())
         .then((data) => {
+          /* Object.entries(data) converts each JSON entry to a key value pair as a tuple */
           const roomCards = Object.entries(data).map(([room, next_time]) => ({
             room_number: room,
             next_use_time: next_time as string,

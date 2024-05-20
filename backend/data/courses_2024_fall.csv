@@ -1,4 +1,4 @@
-Subject,CourseID,Name,CRN,SectionCode,Type,Days,Room Number,Building,Instructors,Start Time,End Time
+Subject,CourseID,Name,CRN,SectionCode,Type,Days,RoomNumber,Building,Instructors,StartTime,EndTime
 AAS,100,Intro Asian American Studies,41758,AD1,Discussion/Recitation,F,G32,"Literatures, Cultures, & Ling",[],09:00:00,09:50:00
 AAS,100,Intro Asian American Studies,47100,AD2,Discussion/Recitation,F,G32,"Literatures, Cultures, & Ling",[],10:00:00,10:50:00
 AAS,100,Intro Asian American Studies,47102,AD3,Discussion/Recitation,F,106B6,Engineering Hall,[],10:00:00,10:50:00

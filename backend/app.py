@@ -12,10 +12,6 @@ from xml.dom import minidom
 
 app = Flask(__name__)
 
-# @app.route("/members")
-# def members():
-#     return jsonify({"members": ["Member1", "Member2", "Member3"]})
-
 # read CSV file and store it as a global variable (initialized upon backend being started)
 df_courses = pd.read_csv("./data/courses_2024_fall.csv")
 
@@ -51,7 +47,7 @@ def getClassNow(df, building):
     df_today = getClassToday(df, curr_datetime)
     # get all courses that going on right now
     curr_time = curr_datetime.time()
-    df_now = df_today[(df_today["Start Time"].apply(lambda x: getTime(x)) <= curr_time) & (df_today["End Time"].apply(lambda x: getTime(x)) >= curr_time)]
+    df_now = df_today[(df_today["StartTime"].apply(lambda x: getTime(x)) <= curr_time) & (df_today["EndTime"].apply(lambda x: getTime(x)) >= curr_time)]
     return df_now
 
 # return all courses that occur in the next hour
@@ -63,7 +59,7 @@ def getClassSoon(df, building):
     # get all courses that start within the next hour
     curr_time = curr_datetime.time()
     next_hr = time((curr_time.hour + 1) % 24, curr_time.minute, curr_time.second, curr_time.microsecond, curr_time.tzinfo)
-    df_soon = df_today[(df_today["Start Time"].apply(lambda x: getTime(x)) <= next_hr) & (df_today["End Time"].apply(lambda x: getTime(x)) >= next_hr)]
+    df_soon = df_today[(df_today["StartTime"].apply(lambda x: getTime(x)) <= next_hr) & (df_today["EndTime"].apply(lambda x: getTime(x)) >= next_hr)]
     return df_soon
 
 # get all rooms that are currently open as well as when they will be taken again
@@ -76,15 +72,15 @@ def getOpenNow(df, building):
     # get all courses going on right now
     df_now = getClassNow(df, building)
     # create set of all rooms in the target building
-    rooms = set(df["Room Number"].unique())
+    rooms = set(df["RoomNumber"].unique())
     # filter out all rooms that are not open
-    rooms_used = set(df_now["Room Number"].unique())
+    rooms_used = set(df_now["RoomNumber"].unique())
     rooms_open = rooms - rooms_used
     # loop through classes in the building today and return the next course time for each open room
     rooms_next_used = {room: time(23, 59) for room in rooms_open}   # 11:59 means room is open for rest of day
     for idx, row in df_today.iterrows():
-        startTime = getTime(row["Start Time"])
-        rm_num = row["Room Number"]
+        startTime = getTime(row["StartTime"])
+        rm_num = row["RoomNumber"]
         # if the room is currently open and this class will occur later in the day
         if((rm_num in rooms_open) & (startTime > curr_datetime.time())):
             # find the soonest course
