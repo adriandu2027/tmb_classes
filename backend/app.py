@@ -13,7 +13,7 @@ from xml.dom import minidom
 app = Flask(__name__)
 
 # read CSV file and store it as a global variable (initialized upon backend being started)
-df_courses = pd.read_csv("./data/courses_2024_fall.csv")
+df_courses = pd.read_csv("./data/courses_2024_fall_cleaned.csv")
 
 # convert a time string into a time object
 def getTime(time_str):

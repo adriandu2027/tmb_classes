@@ -125,7 +125,7 @@ const ClassFinder: React.FC = () => {
             </div>
           ))}
         </div>
-        <h2>{cards.length == 0 ? "No classes currently" : ""}</h2>
+        <h2>{cards.length === 0 ? "No classes currently" : ""}</h2>
       </header>
     </div>
   );
