@@ -6,6 +6,8 @@ import "./EmptyRoomSearcher.css";
 interface RoomCard {
   room_number: string;
   next_use_time: string;
+  color: string;
+  prompt: string;
 }
 
 const customStyles = {
@@ -63,14 +65,22 @@ const EmptyRoomSearcher: React.FC = () => {
   useEffect(() => {
     if (selectedOption) {
       const encodedBuilding = encodeURIComponent(selectedOption.value);
-      fetch(`/open_now?building=${encodedBuilding}`)
+      fetch(`/open_rooms?building=${encodedBuilding}`)
         .then((response) => response.json())
         .then((data) => {
           /* Object.entries(data) converts each JSON entry to a key value pair as a tuple */
-          const roomCards = Object.entries(data).map(([room, next_time]) => ({
-            room_number: room,
-            next_use_time: next_time as string,
-          }));
+          const roomCards = Object.entries(data).map(([room, value]) => {
+            const [next_time, color] = value as [string, string];
+            return {
+              room_number: room,
+              next_use_time: next_time as string,
+              color: color as string,
+              prompt:
+                color === "yellow"
+                  ? "Room open at: " + next_time
+                  : "Next class at: " + next_time,
+            };
+          });
           setCards(roomCards);
         })
         .catch((error) => console.error("Error fetching data:", error));
@@ -103,12 +113,19 @@ const EmptyRoomSearcher: React.FC = () => {
         </div>
         <div className="EmptyRoomSearcher-card-container">
           {cards.map((card) => (
-            <div key={card.room_number} className="EmptyRoomSearcher-card">
+            <div
+              key={card.room_number}
+              className="EmptyRoomSearcher-card"
+              /* inline styling for dynamically styled object */
+              style={{
+                backgroundColor: card.color,
+              }}
+            >
               <h1>Room {card.room_number}</h1>
               <h2>
                 {card.next_use_time === "23:59"
                   ? "Open for the rest of the day"
-                  : `Next class at: ${card.next_use_time}`}
+                  : card.prompt}
               </h2>
             </div>
           ))}

@@ -8,7 +8,7 @@ const MainPage: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Welcome to the App</h1>
+        <h1>tmb classes</h1>
         <div className="button-container">
           <Link to="/empty-room-searcher">
             <button>Find Empty Rooms</button>
