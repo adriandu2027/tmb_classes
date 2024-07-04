@@ -254,3 +254,4 @@ build/
 # Android
 .DS_Store
 build/
+node_modules
