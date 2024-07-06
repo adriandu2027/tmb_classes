@@ -37,6 +37,10 @@ def get_status(next_used_time):
         return "red"
     return "green"
 
+
+### CLASS FUNCTIONS ###
+
+
 # query by building
 def getCoursesInBuilding(building, df):
     df_building = df[df["Building"] == building]
@@ -72,6 +76,21 @@ def getClassSoon(df, building):
     next_hr = next_hr.time()
     df_soon = df_today[(df_today["StartTime"].apply(lambda x: getTime(x)) <= next_hr) & (df_today["EndTime"].apply(lambda x: getTime(x)) >= next_hr)]
     return df_soon
+
+def filter_courses(df, subject = None, class_type = None, building = None, day = None):
+    if building:
+        df = df[df['Building'] == building]
+    if subject:
+        df = df[df['Subject'] == subject]
+    if class_type:
+        df = df[df['Type'] == class_type]
+    if day:
+        df = df[df["Days"].str.contains(day)]
+    return df
+
+
+### ROOM FUNCTIONS ###
+
 
 # get all rooms that are currently open as well as when they will be taken again
 def getOpenNow(df, building):
