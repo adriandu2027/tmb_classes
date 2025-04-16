@@ -13,7 +13,7 @@ from xml.dom import minidom
 app = Flask(__name__)
 
 # read CSV file and store it as a global variable (initialized upon backend being started)
-df_courses = pd.read_csv("./data/courses_2024_fall_cleaned.csv")
+df_courses = pd.read_csv("./data/courses_2025_spring_cleaned.csv")
 
 # convert a time string into a time object
 def getTime(time_str):
@@ -53,29 +53,12 @@ def getClassToday(df, curr_datetime):
     df_today = df[df["Days"].str.contains(day_of_week)]
     return df_today
 
-# get all courses that are going on right now
-def getClassNow(df, building):
+def getClasses(df, building, datetime):
     df = getCoursesInBuilding(building, df)
-
-    curr_datetime = datetime.now()
-    df_today = getClassToday(df, curr_datetime)
-    # get all courses that going on right now
-    curr_time = curr_datetime.time()
-    df_now = df_today[(df_today["StartTime"].apply(lambda x: getTime(x)) <= curr_time) & (df_today["EndTime"].apply(lambda x: getTime(x)) >= curr_time)]
-    return df_now
-
-# return all courses that occur in the next hour
-def getClassSoon(df, building):
-    df = getCoursesInBuilding(building, df)
-
-    curr_datetime = datetime.now()
-    df_today = getClassToday(df, curr_datetime)
-    # get all courses that start within the next hour
-    curr_time = curr_datetime
-    next_hr = curr_time + timedelta(minutes=60)
-    next_hr = next_hr.time()
-    df_soon = df_today[(df_today["StartTime"].apply(lambda x: getTime(x)) <= next_hr) & (df_today["EndTime"].apply(lambda x: getTime(x)) >= next_hr)]
-    return df_soon
+    df = getClassToday(df, datetime)
+    target_time = datetime.time()
+    df = df[(df["StartTime"].apply(lambda x: getTime(x)) <= target_time) & (df["EndTime"].apply(lambda x: getTime(x)) >= target_time)]
+    return df
 
 def filter_courses(df, subject = None, class_type = None, building = None, day = None):
     if building:
@@ -100,7 +83,7 @@ def getOpenNow(df, building):
     curr_datetime = datetime.now()
     df_today = getClassToday(df, curr_datetime)
     # get all courses going on right now
-    df_now = getClassNow(df, building)
+    df_now = getClasses(df, building, curr_datetime)
     # create set of all rooms in the target building
     rooms = set(df["RoomNumber"].unique())
     # filter out all rooms that are not open
@@ -135,7 +118,7 @@ def getOpenSoon(df, building):
 
     curr_datetime = datetime.now()
     df_today = getClassToday(df, curr_datetime)
-    df_now = getClassNow(df, building)
+    df_now = getClasses(df, building, curr_datetime)
     
     rooms_used = set(df_now["RoomNumber"].unique())
     rooms_next_open = {room: time(23, 59) for room in rooms_used}
@@ -177,6 +160,16 @@ def getRooms(df, building):
 
 
 #### API ENDPOINTS
+    
+
+@app.route("/class_now", methods=["GET"])
+def class_now():
+    building = request.args.get("building")
+    if building:
+        curr_datetime = datetime.now()
+        result = getClasses(df_courses, building, curr_datetime)
+        return result.to_json(orient="records")
+    return jsonify({"error": "Missing 'buliding' parameter"}), 400
 
 @app.route("/class_soon", methods=["GET"])
 def class_soon():
@@ -184,16 +177,11 @@ def class_soon():
     # query parameters in URL (?building=A) are accessible through request.args
     building = request.args.get("building")
     if building:
-        result = getClassSoon(df_courses, building)
+        curr_datetime = datetime.now()
+        curr_time = curr_datetime
+        next_hr = curr_time + timedelta(minutes=60)
+        result = getClasses(df_courses, building, next_hr)
         # to_json is a pandas function, orient="records" formats JSON as a list of dictionaries (each row is a dictionary)
-        return result.to_json(orient="records")
-    return jsonify({"error": "Missing 'buliding' parameter"}), 400
-    
-@app.route("/class_now", methods=["GET"])
-def class_now():
-    building = request.args.get("building")
-    if building:
-        result = getClassNow(df_courses, building)
         return result.to_json(orient="records")
     return jsonify({"error": "Missing 'buliding' parameter"}), 400
     
