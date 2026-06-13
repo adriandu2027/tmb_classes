@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Select from "react-select";
 import "./ClassFinder.css";
+import ClassModal from "./ClassModal";
 
 interface ClassCard {
   Subject: string;
@@ -11,7 +12,11 @@ interface ClassCard {
   SectionCode: string;
   Type: string;
   RoomNumber: string;
-  Instructors: string[];
+  Building: string;
+  Instructors: string;
+  Start: string;
+  End: string;
+  Days: string;
   StartTime: string;
   EndTime: string;
 }
@@ -44,6 +49,7 @@ const customStyles = {
 const ClassFinder: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [cards, setCards] = useState<ClassCard[]>([]);
+  const [selectedCard, setSelectedCard] = useState<ClassCard | null>(null);
   const [selectedOption, setSelectedOption] = useState<{
     value: string;
     label: string;
@@ -108,24 +114,22 @@ const ClassFinder: React.FC = () => {
         </div>
         <div className="ClassFinder-card-container">
           {cards.map((card) => (
-            <div key={card.CRN} className="ClassFinder-card">
+            <div key={card.CRN} className="ClassFinder-card" onClick={() => setSelectedCard(card)} style={{ cursor: "pointer" }}>
               <h1>{card.Name}</h1>
-              <h2>
-                {card.StartTime} - {card.EndTime}
-              </h2>
-              <div>
-                <h2 className="inline-heading">Room {card.RoomNumber}</h2>
-                <h3 className="inline-heading">{card.Type}</h3>
+              <div className="ClassFinder-card-meta">
+                <span className="ClassFinder-card-meta-time">{card.StartTime} – {card.EndTime}</span>
+                <span className="ClassFinder-card-badge">Room {card.RoomNumber}</span>
+                <span className="ClassFinder-card-badge">{card.Type}</span>
               </div>
-              <h3>
-                {card.Subject}
-                {card.CourseID}, {card.SectionCode}
-              </h3>
-              <h3>Instructors: {card.Instructors}</h3>
+              <div className="ClassFinder-card-sub">
+                <span>{card.Subject}{card.CourseID} · {card.SectionCode}</span>
+                <span>{card.Instructors}</span>
+              </div>
             </div>
           ))}
         </div>
         <h2>{cards.length === 0 ? "No classes currently" : ""}</h2>
+        <ClassModal card={selectedCard} onClose={() => setSelectedCard(null)} />
       </header>
     </div>
   );
